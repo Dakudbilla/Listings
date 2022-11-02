@@ -1,7 +1,8 @@
 import { ApolloServer  } from "apollo-server-express"
 import {ApolloServerPluginLandingPageGraphQLPlayground} from 'apollo-server-core'
-import express from "express"
+import express, { Application } from "express"
 import {typeDefs,resolvers} from './graphql'
+import { connectDatabase } from "./database"
 
 const app = express()
 
@@ -11,11 +12,16 @@ app.get("/",(_req,res)=>res.send("Hi from Listings"))
 
 const port = process.env.PORT || 5000;
 
-//Create apollo server instance
+
+
+const mount =async(app:Application)=>{
+   const db=await connectDatabase();
+
+    //Create apollo server instance
 (async function() {
     const server = new ApolloServer({
         plugins:[ApolloServerPluginLandingPageGraphQLPlayground({})],
-        typeDefs,resolvers
+        typeDefs,resolvers,context:()=>({db})
     })
     await server.start();
     //add  express to apollo
@@ -24,9 +30,13 @@ server.applyMiddleware({
 })
 })()
 
+    app.listen(port,()=>{
+        console.log("[app]: Listings Server running on port "+port)
+    })
+
+}
+
+mount(express())
 
 
 
-app.listen(port,()=>{
-    console.log("[app]: Listings Server running on port "+port)
-})
