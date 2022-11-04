@@ -20,11 +20,13 @@ const mount =async(app:Application)=>{
     //Create apollo server instance
 (async function() {
     const server = new ApolloServer({
+        //add plugin to make graphiql be used instead of apollo sandbox
         plugins:[ApolloServerPluginLandingPageGraphQLPlayground({})],
+        //add types,resolvers and pass database context to graphql to be available to resolvers
         typeDefs,resolvers,context:()=>({db})
     })
     await server.start();
-    //add  express to apollo
+    //add  express application to apollo
 server.applyMiddleware({
     app,path:"/api"
 })
